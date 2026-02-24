@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0D1B3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CVAdmin">
+<title>CV Express 24 — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+// ── URL BACKEND — CHANGER ICI AVANT DE DÉPLOYER ──
+const API = 'https://votre-backend.railway.app/api';
+</script>
+<style>
+:root{
+  --navy:#0D1B3E;--blue:#1A4DB8;--accent:#F5A623;
+  --light:#EEF2FF;--gray:#64748B;--border:#E2E8F0;
+  --ok:#10B981;--err:#EF4444;--warn:#F59E0B;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:#F1F5F9;color:var(--navy);min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* ── LOGIN ── */
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0A1628 0%,#1A4DB8 100%);padding:20px;}
+.lbox{background:white;border-radius:20px;padding:36px 28px;width:100%;max-width:360px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.llogo{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-bottom:2px;}
+.llogo span{color:var(--accent);}
+.lbadge{display:inline-block;background:#0D1B3E;color:white;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px;margin-bottom:22px;letter-spacing:.5px;}
+.lbox input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.9rem;margin-bottom:10px;-webkit-appearance:none;}
+.lbox input:focus{outline:none;border-color:var(--blue);}
+.lbtn{width:100%;background:var(--blue);color:white;padding:13px;border-radius:10px;border:none;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;transition:transform .15s;}
+.lbtn:hover{transform:translateY(-1px);}
+.lbtn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.lerr{color:var(--err);font-size:.78rem;margin-top:8px;padding:9px;background:#FEE2E2;border-radius:8px;display:none;}
+.lerr.show{display:block;}
+
+/* ── ADMIN LAYOUT ── */
+#admin{display:none;}
+.topbar{background:var(--navy);color:white;padding:calc(14px + var(--st)) 18px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.tlogo{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:900;}
+.tlogo span{color:var(--accent);}
+.tbadge{background:var(--accent);color:var(--navy);padding:2px 8px;border-radius:20px;font-size:.68rem;font-weight:800;margin-left:6px;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-btn{background:#ffffff18;border:none;color:white;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:.75rem;font-weight:600;font-family:inherit;}
+.notif-btn{background:#ffffff18;border:none;color:white;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+.notif-btn.on{background:var(--accent);color:var(--navy);}
+
+/* ── PWA BAR ── */
+#pwa-bar{display:none;background:linear-gradient(90deg,#1A4DB8,#0D1B3E);color:white;padding:10px 18px;align-items:center;justify-content:center;gap:10px;font-size:.78rem;}
+#pwa-bar.show{display:flex;}
+.pwa-btn{background:var(--accent);color:var(--navy);border:none;padding:6px 14px;border-radius:8px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;}
+
+/* ── CONTENT ── */
+.content{padding:16px;max-width:860px;margin:0 auto;}
+
+/* ── REVENUE CARD ── */
+.rev-card{background:linear-gradient(135deg,#0D1B3E,#1A4DB8);border-radius:16px;padding:18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;color:white;}
+.rev-card .lbl{font-size:.72rem;color:#93C5FD;margin-bottom:4px;}
+.rev-card .amt{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--accent);}
+
+/* ── STATS ── */
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.scard{background:white;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.snum{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;}
+.snum.b{color:var(--blue)}.snum.o{color:var(--warn)}.snum.g{color:var(--ok)}
+.slbl{font-size:.68rem;color:var(--gray);margin-top:2px;}
+
+/* ── STATS PAR PRODUIT ── */
+.prod-stats-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.pstat{background:white;border-radius:10px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+.pstat-name{font-size:.82rem;font-weight:600;}
+.pstat-sub{font-size:.7rem;color:var(--gray);}
+.pstat-rev{font-family:'Playfair Display',serif;font-weight:700;color:var(--blue);font-size:.9rem;}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+.fbtn{padding:7px 13px;border-radius:8px;border:1.5px solid var(--border);background:white;font-size:.76rem;font-weight:600;cursor:pointer;color:var(--gray);font-family:inherit;transition:all .15s;}
+.fbtn.on{background:var(--blue);color:white;border-color:var(--blue);}
+.srch{flex:1;min-width:160px;position:relative;}
+.srch input{width:100%;padding:8px 12px 8px 32px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:.8rem;background:white;}
+.srch input:focus{outline:none;border-color:var(--blue);}
+.srch .ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray);font-size:.82rem;}
+
+/* ── REFRESH BAR ── */
+.rbar{background:white;border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;font-size:.76rem;color:var(--gray);box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.rfbtn{background:var(--light);color:var(--blue);border:none;padding:5px 11px;border-radius:6px;font-size:.72rem;font-weight:700;cursor:pointer;font-family:inherit;}
+.spin{display:inline-block;width:11px;height:11px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;margin-right:5px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── CARDS ── */
+.list{display:flex;flex-direction:column;gap:10px;}
+.card{background:white;border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.06);border-left:4px solid var(--border);}
+.card.pend{border-left-color:var(--warn);}
+.card.vald{border-left-color:var(--ok);}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.cname{font-weight:700;font-size:.92rem;}
+.cposte{font-size:.74rem;color:var(--gray);}
+.cdate{font-size:.68rem;color:var(--gray);margin-top:2px;}
+.cbadge{padding:4px 10px;border-radius:20px;font-size:.68rem;font-weight:700;flex-shrink:0;white-space:nowrap;}
+.cbadge.p{background:#FEF3C7;color:#92400E;}
+.cbadge.v{background:#D1FAE5;color:#065F46;}
+
+/* ── PRODUCT TAG ── */
+.ptag{display:inline-flex;align-items:center;gap:5px;background:var(--light);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:.75rem;font-weight:700;margin-bottom:10px;}
+.ptag .prix{color:var(--blue);margin-left:4px;}
+.prix-badge{display:inline-flex;align-items:center;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:5px;margin-left:5px;}
+.px-ok{background:#D1FAE5;color:#065F46;}
+.px-ko{background:#FEE2E2;color:#991B1B;}
+.px-up{background:#FEF3C7;color:#92400E;}
+
+/* ── DETAILS ── */
+.dets{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+.det{font-size:.76rem;color:var(--gray);}
+.det strong{color:var(--navy);display:block;font-size:.78rem;}
+.txnbox{background:var(--light);border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:.78rem;}
+.txnbox span{color:var(--gray);}
+.txnbox strong{color:var(--navy);word-break:break-all;}
+
+/* ── STATUT PRIX SELECTOR ── */
+.px-sel{display:flex;gap:6px;margin-bottom:10px;}
+.px-opt{flex:1;text-align:center;padding:7px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:.7rem;font-weight:700;color:var(--gray);font-family:inherit;background:white;transition:all .15s;}
+.px-opt.ok{border-color:var(--ok);background:#D1FAE5;color:#065F46;}
+.px-opt.ko{border-color:var(--err);background:#FEE2E2;color:#991B1B;}
+.px-opt.up{border-color:var(--warn);background:#FEF3C7;color:#92400E;}
+
+/* ── ACTIONS ── */
+.actions{display:flex;gap:8px;flex-wrap:wrap;}
+.vbtn{flex:1;min-width:120px;background:var(--ok);color:white;border:none;border-radius:10px;padding:11px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;transition:transform .15s;}
+.vbtn:hover{transform:translateY(-1px);}
+.vbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.rbtn{background:var(--light);color:var(--err);border:1.5px solid #FCA5A5;border-radius:10px;padding:11px 14px;font-weight:700;font-size:.78rem;cursor:pointer;font-family:inherit;}
+.vdone{width:100%;background:#D1FAE5;color:#065F46;border:none;border-radius:10px;padding:11px;font-weight:700;font-size:.82rem;font-family:inherit;}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:44px 20px;color:var(--gray);}
+.empty .ico{font-size:2.8rem;margin-bottom:10px;}
+.empty h3{font-size:.95rem;color:var(--navy);margin-bottom:5px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:calc(20px + var(--sb));right:16px;left:16px;padding:13px 18px;border-radius:12px;font-size:.85rem;font-weight:600;color:white;z-index:999;transform:translateY(120px);transition:transform .3s;box-shadow:0 6px 20px rgba(0,0,0,.18);text-align:center;}
+.toast.show{transform:translateY(0);}
+.toast.ok{background:var(--ok);}
+.toast.err{background:var(--err);}
+.toast.info{background:var(--blue);}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .3s ease;}
+@media(max-width:480px){.sgrid{grid-template-columns:1fr 1fr}.dets{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="login">
+  <div class="lbox">
+    <div class="llogo">CV<span>Express</span>24</div>
+    <div class="lbadge">🔐 Panel Administrateur</div>
+    <input type="email" id="l-user" placeholder="Email admin" autocomplete="username" value="munupage@gmail.com">
+    <input type="password" id="l-pass" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+    <button class="lbtn" id="lbtn" onclick="login()">Se connecter</button>
+    <div class="lerr" id="lerr"></div>
+    <p style="font-size:.68rem;color:var(--gray);margin-top:14px">Session JWT sécurisée · 8 heures</p>
+  </div>
+</div>
+
+<!-- ══════════ ADMIN ══════════ -->
+<div id="admin">
+
+  <div id="pwa-bar">
+    <span>📲 Installer l'admin sur ton téléphone pour les notifications push</span>
+    <button class="pwa-btn" id="pwa-install">Installer</button>
+    <button onclick="document.getElementById('pwa-bar').classList.remove('show')" style="background:none;border:none;color:white;cursor:pointer;font-size:1.1rem">✕</button>
+  </div>
+
+  <div class="topbar">
+    <div>
+      <span class="tlogo">CV<span>Express</span>24</span>
+      <span class="tbadge" id="tb-pend">0</span>
+      <span style="font-size:.7rem;color:#94A3B8;margin-left:3px">en attente</span>
+    </div>
+    <div class="tb-right">
+      <button class="notif-btn" id="notif-btn" onclick="togglePush()" title="Activer notifications">🔔</button>
+      <button class="tb-btn" onclick="doLogout()">Déco.</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="rev-card">
+      <div><div class="lbl">Revenus validés</div><div class="amt" id="rev">0 FCFA</div></div>
+      <div style="font-size:2.2rem">💰</div>
+    </div>
+
+    <div class="sgrid">
+      <div class="scard"><div class="snum b" id="s-tot">0</div><div class="slbl">Total</div></div>
+      <div class="scard"><div class="snum o" id="s-pend">0</div><div class="slbl">En attente</div></div>
+      <div class="scard"><div class="snum g" id="s-val">0</div><div class="slbl">Validés</div></div>
+    </div>
+
+    <div class="prod-stats-list" id="prod-stats"></div>
+
+    <div class="rbar">
+      <span><span class="spin"></span>Actualisation auto · 10s</span>
+      <button class="rfbtn" onclick="load()">🔄 Actualiser</button>
+    </div>
+
+    <div class="toolbar">
+      <button class="fbtn on" onclick="setFilter('all',this)">Tous</button>
+      <button class="fbtn" onclick="setFilter('pend',this)">⏳ En attente</button>
+      <button class="fbtn" onclick="setFilter('val',this)">✅ Validés</button>
+      <div class="srch">
+        <span class="ico">🔍</span>
+        <input id="q" placeholder="Nom, email, transaction, produit..." oninput="render()">
+      </div>
+    </div>
+
+    <div class="list" id="list"></div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+// IDENTIFIANTS ADMIN (correspondre aux variables .env du backend)
+const ADMIN_EMAIL    = 'munupage@gmail.com';
+const ADMIN_PASSWORD = '441755';
+
+// ── STATE ─────────────────────────────────────────────────────
+let token=sessionStorage.getItem('admin_jwt')||null;
+let submissions=[],filter='all',autoR=null,deferPWA=null;
+let pushOn=false,prevPend=0;
+const pxChoice={}; // id → CORRECT|INFERIEUR|SUPERIEUR
+
+// ── LOGIN ─────────────────────────────────────────────────────
+async function login(){
+  const user=document.getElementById('l-user').value.trim();
+  const pass=document.getElementById('l-pass').value.trim();
+  const btn=document.getElementById('lbtn');
+  const err=document.getElementById('lerr');
+  if(!user||!pass){err.textContent='Remplis les deux champs.';err.classList.add('show');return;}
+  btn.disabled=true;btn.textContent='Connexion...';err.classList.remove('show');
+  try{
+    const res=await fetch(`${API}/admin/login`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:user,password:pass})
+    });
+    const data=await res.json();
+    if(!res.ok){err.textContent=data.error||'Identifiants incorrects.';err.classList.add('show');btn.disabled=false;btn.textContent='Se connecter';return;}
+    token=data.token;sessionStorage.setItem('admin_jwt',token);
+    openAdmin();
+  }catch(_){
+    err.textContent='❌ Serveur inaccessible. Vérifie l\'URL du backend.';err.classList.add('show');
+    btn.disabled=false;btn.textContent='Se connecter';
+  }
+}
+
+function doLogout(){
+  token=null;sessionStorage.removeItem('admin_jwt');
+  clearInterval(autoR);
+  document.getElementById('admin').style.display='none';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('l-pass').value='';
+  document.getElementById('lbtn').disabled=false;
+  document.getElementById('lbtn').textContent='Se connecter';
+}
+
+function openAdmin(){
+  document.getElementById('login').style.display='none';
+  document.getElementById('admin').style.display='block';
+  initPWA();load();
+  if(autoR)clearInterval(autoR);
+  autoR=setInterval(load,10000);
+}
+
+// Auto-login si token valide
+if(token){document.getElementById('login').style.display='none';document.getElementById('admin').style.display='block';openAdmin();}
+
+// ── CHARGER DONNÉES ───────────────────────────────────────────
+async function load(){
+  try{
+    // Stats
+    const sr=await api('GET','/admin/stats');
+    if(sr.status===401){doLogout();return;}
+    if(sr.ok){
+      const s=await sr.json();
+      document.getElementById('s-tot').textContent=s.total||0;
+      document.getElementById('s-pend').textContent=s.pending||0;
+      document.getElementById('s-val').textContent=s.validated||0;
+      document.getElementById('tb-pend').textContent=s.pending||0;
+      document.getElementById('rev').textContent=(s.revenue_fcfa||0).toLocaleString('fr-FR')+' FCFA';
+      // Stats par produit
+      if(s.by_product&&Object.keys(s.by_product).length){
+        document.getElementById('prod-stats').innerHTML=
+          Object.entries(s.by_product).map(([code,p])=>`
+            <div class="pstat">
+              <div><div class="pstat-name">${esc(p.name)}</div><div class="pstat-sub">${p.validated}/${p.total} validés</div></div>
+              <div class="pstat-rev">${p.revenue.toLocaleString('fr-FR')} FCFA</div>
+            </div>`).join('');
+      }
+      // Son si nouvelles soumissions
+      if(s.pending>prevPend&&prevPend>=0) playSound('new');
+      prevPend=s.pending||0;
+    }
+    // Liste
+    const lr=await api('GET','/admin/submissions');
+    if(lr.status===401){doLogout();return;}
+    if(lr.ok){const d=await lr.json();submissions=d.submissions||[];render();}
+  }catch(_){}
+}
+
+// ── RENDER ────────────────────────────────────────────────────
+function setFilter(f,btn){
+  filter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');render();
+}
+function render(){
+  const q=(document.getElementById('q')?.value||'').toLowerCase();
+  let list=[...submissions];
+  if(filter==='pend')list=list.filter(s=>!s.paiement_valide);
+  if(filter==='val')list=list.filter(s=>s.paiement_valide);
+  if(q)list=list.filter(s=>
+    (s.nom||'').toLowerCase().includes(q)||
+    (s.email||'').toLowerCase().includes(q)||
+    (s.transaction_number||'').toLowerCase().includes(q)||
+    (s.product_code||'').toLowerCase().includes(q)||
+    (s.product_name||'').toLowerCase().includes(q)
+  );
+  const el=document.getElementById('list');
+  if(!list.length){
+    el.innerHTML=`<div class="empty"><div class="ico">📭</div><h3>Aucune soumission</h3><p>${filter==='pend'?'Pas de paiement en attente.':'Rien à afficher.'}</p></div>`;
+    return;
+  }
+  el.innerHTML=list.map(s=>buildCard(s)).join('');
+}
+
+function buildCard(s){
+  const pend=!s.paiement_valide;
+  const dt=new Date(s.date_creation).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const px=pxChoice[s.id]||'CORRECT';
+
+  // Badge statut prix
+  let pxBadge='';
+  if(s.statut_prix&&s.statut_prix!=='INCONNU'){
+    const cls=s.statut_prix==='CORRECT'?'px-ok':s.statut_prix==='INFERIEUR'?'px-ko':'px-up';
+    const lbl=s.statut_prix==='CORRECT'?'✓ Correct':s.statut_prix==='INFERIEUR'?'⚠ Inférieur':'↑ Supérieur';
+    pxBadge=`<span class="prix-badge ${cls}">${lbl}</span>`;
+  }
+
+  const actions=pend?`
+    <div style="margin-bottom:9px">
+      <div style="font-size:.7rem;font-weight:600;color:var(--gray);margin-bottom:5px">Montant reçu :</div>
+      <div class="px-sel">
+        <button class="px-opt${px==='CORRECT'?' ok':''}" onclick="setPx('${s.id}','CORRECT')">✓ Correct</button>
+        <button class="px-opt${px==='INFERIEUR'?' ko':''}" onclick="setPx('${s.id}','INFERIEUR')">⚠ Inférieur</button>
+        <button class="px-opt${px==='SUPERIEUR'?' up':''}" onclick="setPx('${s.id}','SUPERIEUR')">↑ Supérieur</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="vbtn" id="vbtn-${s.id}" onclick="valider('${s.id}','${esc(s.nom)}')">✅ Valider le paiement</button>
+      <button class="rbtn" onclick="rejeter('${s.id}','${esc(s.nom)}')">✕ Rejeter</button>
+    </div>`
+    :`<button class="vdone">✅ Validé — PDF ${esc(s.product_name||'')} débloqué</button>`;
+
+  return`<div class="card ${pend?'pend':'vald'}" id="card-${s.id}">
+    <div class="card-top">
+      <div>
+        <div class="cname">${esc(s.nom)}</div>
+        <div class="cposte">${esc(s.poste||'')}</div>
+        <div class="cdate">📅 ${dt}</div>
+      </div>
+      <span class="cbadge ${pend?'p':'v'}">${pend?'⏳ En attente':'✅ Validé'}</span>
+    </div>
+    <div class="ptag">
+      🛒 ${esc(s.product_name||s.product_code||'—')}
+      <span class="prix">${(s.product_price||0).toLocaleString('fr-FR')} FCFA attendus</span>
+      ${pxBadge}
+    </div>
+    <div class="dets">
+      <div class="det"><strong>${esc(s.email||'—')}</strong>Email</div>
+      <div class="det"><strong>${esc(s.telephone||'—')}</strong>Téléphone</div>
+    </div>
+    <div class="txnbox"><span>Transaction : </span><strong>${esc(s.transaction_number)}</strong></div>
+    ${actions}
+  </div>`;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────
+function setPx(id,val){
+  pxChoice[id]=val;
+  // Mettre à jour les boutons dans le DOM
+  const card=document.getElementById('card-'+id);
+  if(!card)return;
+  card.querySelectorAll('.px-opt').forEach(b=>{b.className='px-opt';});
+  const btns=card.querySelectorAll('.px-opt');
+  if(btns[0]&&val==='CORRECT')btns[0].classList.add('ok');
+  if(btns[1]&&val==='INFERIEUR')btns[1].classList.add('ko');
+  if(btns[2]&&val==='SUPERIEUR')btns[2].classList.add('up');
+}
+
+async function valider(id,nom){
+  const s=submissions.find(x=>x.id===id);
+  const px=pxChoice[id]||'CORRECT';
+  if(!confirm(`Valider le paiement de ${nom} ?\n\n📦 ${s?.product_name||'—'}\n💰 ${(s?.product_price||0).toLocaleString('fr-FR')} FCFA attendus\n📊 Montant reçu : ${px}\n\n⚠️ Assure-toi d'avoir bien reçu le paiement.`))return;
+  const btn=document.getElementById('vbtn-'+id);
+  if(btn){btn.disabled=true;btn.textContent='⏳ Validation...';}
+  try{
+    const res=await api('POST',`/admin/validate/${id}`,{statut_prix:px});
+    const data=await res.json();
+    if(!res.ok){toast('❌ '+(data.error||'Erreur'),'err');if(btn){btn.disabled=false;btn.textContent='✅ Valider le paiement';}return;}
+    toast(`✅ ${nom} validé ! PDF débloqué.`,'ok');
+    playSound('ok');
+    await load();
+  }catch(_){toast('❌ Erreur réseau','err');if(btn){btn.disabled=false;btn.textContent='✅ Valider le paiement';}}
+}
+
+async function rejeter(id,nom){
+  if(!confirm(`Supprimer la soumission de ${nom} ?\n\nCette action est irréversible.`))return;
+  try{
+    const res=await api('DELETE',`/admin/reject/${id}`);
+    if(res.ok){toast(`🗑 ${nom} supprimé.`,'ok');await load();}
+    else{const d=await res.json();toast('❌ '+(d.error||'Erreur'),'err');}
+  }catch(_){toast('❌ Erreur réseau','err');}
+}
+
+// ── PUSH NOTIFICATIONS ────────────────────────────────────────
+async function togglePush(){
+  if(pushOn){toast('Notifications déjà activées.','info');return;}
+  if(!('Notification' in window)){toast('Non supporté par ce navigateur.','err');return;}
+  const perm=await Notification.requestPermission();
+  if(perm!=='granted'){toast('Notifications refusées.','err');return;}
+  try{
+    const vr=await fetch(`${API}/push/vapid-key`).catch(()=>null);
+    let vapidKey='';
+    if(vr&&vr.ok){const vd=await vr.json();vapidKey=vd.publicKey||'';}
+    if(!vapidKey){toast('Clés VAPID non configurées sur le backend.','err');return;}
+    const sw=await navigator.serviceWorker.ready;
+    const sub=await sw.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:b64ToUint8(vapidKey)
+    });
+    await api('POST','/admin/push-subscribe',{subscription:sub});
+    pushOn=true;
+    document.getElementById('notif-btn').classList.add('on');
+    toast('🔔 Notifications activées !','ok');
+  }catch(e){toast('Erreur push : '+e.message,'err');}
+}
+
+function b64ToUint8(b64){
+  const p='='.repeat((4-b64.length%4)%4);
+  const b=(b64+p).replace(/-/g,'+').replace(/_/g,'/');
+  const r=atob(b),o=new Uint8Array(r.length);
+  for(let i=0;i<r.length;i++)o[i]=r.charCodeAt(i);
+  return o;
+}
+
+// ── SON (Web Audio API — aucun fichier externe) ───────────────
+function playSound(type){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const freqs=type==='ok'?[440,660,880]:[880,880,1100];
+    const delays=type==='ok'?[0,.18,.36]:[0,.15,.3];
+    freqs.forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=f;o.type=type==='ok'?'sine':'square';
+      g.gain.setValueAtTime(type==='ok'?.25:.15,ctx.currentTime+delays[i]);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delays[i]+.35);
+      o.start(ctx.currentTime+delays[i]);
+      o.stop(ctx.currentTime+delays[i]+.35);
+    });
+  }catch(_){}
+}
+
+// ── PWA ───────────────────────────────────────────────────────
+function initPWA(){
+  // SW admin inline
+  if('serviceWorker' in navigator){
+    const swCode=`
+const C='cve24-admin-v1';
+self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll([]).catch(()=>{})).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{if(e.request.url.includes('/api/'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response(''))));});
+self.addEventListener('push',e=>{
+  let d={title:'🔔 CV Express 24',body:'Nouveau paiement à valider',data:{}};
+  try{d=e.data.json();}catch(_){}
+  e.waitUntil(self.registration.showNotification(d.title||'🔔 CV Express 24',{
+    body:d.body||'Paiement en attente',vibrate:[200,100,200,100,300],
+    requireInteraction:true,tag:'cve24-'+Date.now(),renotify:true,
+    actions:[{action:'open',title:'Voir'}]
+  }));
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  e.waitUntil(clients.matchAll({type:'window',includeUncontrolled:true}).then(cls=>{
+    const c=cls.find(x=>x.focused||x.visibilityState==='visible');
+    if(c)c.focus();else clients.openWindow('/');
+  }));
+});`;
+    const blob=new Blob([swCode],{type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
+  }
+}
+
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferPWA=e;
+  document.getElementById('pwa-bar').classList.add('show');
+});
+document.getElementById('pwa-install').onclick=async()=>{
+  if(!deferPWA)return;deferPWA.prompt();
+  await deferPWA.userChoice;deferPWA=null;
+  document.getElementById('pwa-bar').classList.remove('show');
+};
+window.addEventListener('appinstalled',()=>document.getElementById('pwa-bar').classList.remove('show'));
+
+// ── HELPERS ───────────────────────────────────────────────────
+function api(method,path,body){
+  return fetch(`${API}${path}`,{
+    method,
+    headers:{'Content-Type':'application/json','Authorization':token?`Bearer ${token}`:''},
+    body:body?JSON.stringify(body):undefined
+  });
+}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let toastT;
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');el.textContent=msg;
+  el.className=`toast ${type} show`;clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),4000);
+}
+document.getElementById('l-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});
+</script>
+</body>
+</html>

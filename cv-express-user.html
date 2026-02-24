@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1A4DB8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CVExpress24">
+<title>CV Express 24 — Ton CV Professionnel en 5 Minutes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script>
+// ── URL BACKEND — CHANGER ICI AVANT DE DÉPLOYER ──
+// Local  : const API = 'http://localhost:3000/api';
+// Prod   : const API = 'https://votre-backend.railway.app/api';
+const API = 'https://votre-backend.railway.app/api';
+</script>
+<style>
+:root{
+  --navy:#0D1B3E;--blue:#1A4DB8;--accent:#F5A623;
+  --light:#EEF2FF;--white:#fff;--gray:#64748B;
+  --border:#E2E8F0;--ok:#10B981;--err:#EF4444;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--navy);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:calc(12px + var(--st)) 18px 12px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;letter-spacing:-.5px;}
+.logo span{color:var(--accent);}
+.nav-cta{background:var(--blue);color:#fff;padding:8px 16px;border-radius:8px;border:none;font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;}
+
+#pwa-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--navy);padding:14px 18px calc(14px + var(--sb));border-top:2px solid #1E2D4F;}
+#pwa-bar.show{display:block;animation:slideUp .35s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pwa-row{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.pwa-icon{width:42px;height:42px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.pwa-row h4{font-size:.88rem;font-weight:700;color:#fff;margin-bottom:2px;}
+.pwa-row p{font-size:.72rem;color:#94A3B8;}
+.pwa-acts{display:flex;gap:8px;}
+.pwa-go{flex:1;background:var(--accent);color:var(--navy);border:none;padding:10px;border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;}
+.pwa-skip{background:#fff2;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-size:.78rem;cursor:pointer;font-family:inherit;}
+
+.page{display:none;padding:calc(60px + var(--st)) 0 calc(28px + var(--sb));min-height:100vh;}
+.page.active{display:block;}
+#p-land{padding:0;display:none;}
+#p-land.active{display:block;}
+.pg{padding:0 18px;}
+
+.hero{background:var(--navy);padding:calc(96px + var(--st)) 18px 62px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 30%,rgba(26,77,184,.4) 0%,transparent 65%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:28px;background:var(--white);clip-path:ellipse(55% 100% at 50% 100%);}
+.hero h1{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:#fff;line-height:1.15;margin-bottom:12px;position:relative;}
+.hero h1 em{color:var(--accent);font-style:normal;}
+.hero .sub{color:#94A3B8;font-size:.9rem;max-width:310px;margin:0 auto 24px;line-height:1.65;position:relative;}
+.pill{display:inline-flex;align-items:center;padding:5px 12px;border-radius:100px;font-size:.68rem;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:.8px;}
+.pill-light{background:rgba(255,255,255,.12);color:#93C5FD;}
+.pill-blue{background:#1A4DB815;color:var(--blue);}
+.stitle{font-family:'Playfair Display',serif;font-size:1.55rem;font-weight:900;margin-bottom:6px;line-height:1.2;}
+.ssub{color:var(--gray);font-size:.84rem;margin-bottom:18px;line-height:1.55;}
+section{padding:42px 18px;}
+
+.btn{display:block;width:100%;text-align:center;padding:14px;border-radius:12px;font-weight:700;font-size:.94rem;border:none;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .15s;}
+.btn-accent{background:var(--accent);color:var(--navy);box-shadow:0 4px 18px rgba(245,166,35,.3);}
+.btn-accent:hover{transform:translateY(-2px);box-shadow:0 8px 26px rgba(245,166,35,.4);}
+.btn-blue{background:var(--blue);color:#fff;margin-top:10px;}
+.btn-ghost{background:var(--light);color:var(--navy);margin-top:10px;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;box-shadow:none!important;}
+
+section{padding:42px 18px;}
+.pgrid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pcard{background:#fff;border-radius:12px;padding:14px;border-left:3px solid var(--err);box-shadow:0 2px 10px rgba(0,0,0,.06);}
+.pcard .ico{font-size:1.3rem;margin-bottom:4px;}
+.pcard p{font-size:.77rem;color:var(--gray);line-height:1.4;}
+.step{display:flex;align-items:flex-start;gap:13px;padding:14px;background:var(--light);border-radius:12px;margin-bottom:10px;}
+.step-n{background:var(--blue);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;}
+.step h3{font-size:.88rem;font-weight:700;margin-bottom:2px;}
+.step p{font-size:.75rem;color:var(--gray);}
+.prix-sec{background:var(--navy);}
+.prix-sec .stitle{color:#fff;}
+.prix-sec .ssub{color:#94A3B8;}
+.testi{background:var(--light);border-radius:10px;padding:12px;font-size:.79rem;color:var(--gray);border-left:3px solid var(--accent);font-style:italic;}
+.testi strong{color:var(--navy);display:block;margin-top:4px;font-style:normal;font-size:.73rem;}
+
+.prod-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.prod-card{border:2px solid var(--border);border-radius:14px;padding:15px;cursor:pointer;transition:all .2s;position:relative;background:#fff;}
+.prod-card.sel{border-color:var(--blue);background:var(--light);}
+.prod-card.feat{border-color:var(--accent);}
+.prod-badge{position:absolute;top:-10px;right:14px;background:var(--accent);color:var(--navy);font-size:.6rem;font-weight:800;padding:3px 9px;border-radius:20px;}
+.prod-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.prod-name{font-weight:700;font-size:.93rem;}
+.prod-price{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:var(--blue);}
+.prod-price small{font-size:.65rem;color:var(--gray);font-family:'DM Sans',sans-serif;font-weight:400;}
+.prod-desc{font-size:.74rem;color:var(--gray);margin-bottom:7px;}
+.prod-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.prod-tag{background:var(--light);color:var(--navy);font-size:.66rem;font-weight:600;padding:2px 7px;border-radius:5px;}
+.radio-dot{width:18px;height:18px;border:2px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.prod-card.sel .radio-dot{border-color:var(--blue);background:var(--blue);}
+.prod-card.sel .radio-dot::after{content:'';width:6px;height:6px;background:#fff;border-radius:50%;display:block;}
+
+.fblock{margin-bottom:20px;}
+.ftitle{font-weight:700;font-size:.9rem;margin-bottom:11px;padding-bottom:7px;border-bottom:2px solid var(--light);}
+.fg{margin-bottom:10px;}
+label{display:block;font-size:.77rem;font-weight:600;margin-bottom:4px;}
+.opt{color:var(--gray);font-weight:400;font-size:.68rem;}
+input,textarea{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.88rem;color:var(--navy);background:#fff;transition:border-color .2s;-webkit-appearance:none;}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);}
+textarea{resize:vertical;min-height:68px;}
+.dyn-block{background:var(--light);border-radius:12px;padding:13px;margin-bottom:9px;}
+.add-btn{background:#fff;color:var(--blue);border:1.5px dashed var(--blue);border-radius:10px;padding:10px;width:100%;font-weight:600;font-size:.79rem;cursor:pointer;font-family:inherit;}
+.rm-btn{background:none;border:none;color:var(--err);font-size:.73rem;cursor:pointer;float:right;font-weight:700;font-family:inherit;margin-bottom:6px;}
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.tpl{border:2px solid var(--border);border-radius:12px;padding:11px 9px;text-align:center;cursor:pointer;transition:all .2s;}
+.tpl.sel{border-color:var(--blue);background:var(--light);}
+.tpl-ico{font-size:1.5rem;margin-bottom:3px;}
+.tpl h4{font-size:.76rem;font-weight:700;}
+.tpl p{font-size:.66rem;color:var(--gray);}
+
+.order-box{background:var(--navy);border-radius:14px;padding:15px;margin-bottom:16px;color:#fff;}
+.order-box .lbl{font-size:.7rem;color:#94A3B8;margin-bottom:3px;}
+.order-box .pname{font-weight:700;font-size:.98rem;margin-bottom:3px;}
+.order-row{display:flex;align-items:center;justify-content:space-between;padding-top:9px;border-top:1px solid #1E2D4F;}
+.order-amt{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);}
+
+.cv-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.08);background:#f8f9fa;margin:14px 0;}
+.cv-scale{overflow:hidden;height:390px;}
+.cv-inner{transform:scale(.44);transform-origin:top left;width:228%;}
+
+.pay-box{background:var(--light);border-radius:14px;padding:16px;margin-bottom:14px;border:1px solid var(--border);}
+.pay-num{background:var(--navy);color:var(--accent);border-radius:10px;padding:12px;text-align:center;font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;letter-spacing:2px;margin:9px 0;cursor:pointer;user-select:all;}
+.copy-tip{font-size:.69rem;color:var(--blue);text-align:center;font-weight:600;}
+.pay-steps{list-style:none;margin-top:11px;}
+.pay-steps li{display:flex;gap:9px;margin-bottom:8px;font-size:.79rem;color:var(--gray);}
+.pay-steps .sn{background:var(--blue);color:#fff;width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.64rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+
+.status-card{border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;}
+.s-wait{background:#FEF3C7;border:1px solid #FDE68A;}
+.s-wait h3{color:#92400E;font-size:.93rem;margin-bottom:4px;}
+.s-wait p{color:#B45309;font-size:.79rem;}
+.s-ok{background:#D1FAE5;border:1px solid #6EE7B7;}
+.s-ok h3{color:#065F46;font-size:.93rem;margin-bottom:4px;}
+.s-ok p{color:#047857;font-size:.79rem;}
+.poll-row{display:flex;align-items:center;justify-content:center;gap:7px;font-size:.74rem;color:var(--gray);margin-top:11px;}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.info-row{background:#fff;border:1px solid var(--border);border-radius:10px;padding:11px;font-size:.77rem;margin-top:9px;}
+.info-row .lbl{color:var(--gray);}
+.info-row strong{color:var(--navy);word-break:break-all;display:block;margin-top:2px;}
+.err-box{background:#FEE2E2;color:#991B1B;border:1px solid #FCA5A5;border-radius:10px;padding:11px;font-size:.79rem;margin-bottom:11px;display:none;}
+.err-box.show{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .4s ease forwards;}
+@media(max-width:380px){.pgrid2,.tpl-grid{grid-template-columns:1fr}.stitle{font-size:1.35rem}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">CV<span>Express</span>24</div>
+  <button class="nav-cta" onclick="go('p-form')">Créer mon CV →</button>
+</nav>
+
+<div id="pwa-bar">
+  <div class="pwa-row">
+    <div class="pwa-icon">📄</div>
+    <div><h4>Installer l'application</h4><p>Accès depuis ton écran d'accueil, sans connexion</p></div>
+  </div>
+  <div class="pwa-acts">
+    <button class="pwa-go" id="pwa-go">📲 Installer gratuitement</button>
+    <button class="pwa-skip" onclick="dismissPWA()">Plus tard</button>
+  </div>
+</div>
+
+<!-- ══════════ LANDING ══════════ -->
+<div id="p-land" class="active">
+  <div class="hero fu">
+    <div class="pill pill-light">🌍 Conçu pour l'Afrique de l'Ouest</div>
+    <h1>Ton CV <em>professionnel</em><br>en 5 minutes</h1>
+    <p class="sub">Depuis ton téléphone. Sans Word, sans ordi. Prêt à envoyer aux entreprises.</p>
+    <button class="btn btn-accent" style="max-width:310px;margin:0 auto" onclick="go('p-form')">Créer mon CV maintenant →</button>
+    <div class="testi" style="max-width:330px;margin:16px auto 0;text-align:left">
+      "J'ai eu mon entretien 3 jours après avoir envoyé ce CV."
+      <strong>— Moussa K., Dakar 🇸🇳</strong>
+    </div>
+  </div>
+
+  <section style="background:var(--light)">
+    <div class="pill pill-blue">Problème</div>
+    <h2 class="stitle">Tu te reconnais ?</h2>
+    <div class="pgrid2">
+      <div class="pcard"><div class="ico">💻</div><p>Pas d'ordi ni Word</p></div>
+      <div class="pcard"><div class="ico">⚡</div><p>Besoin urgent d'un CV</p></div>
+      <div class="pcard"><div class="ico">😕</div><p>Pas de modèle pro</p></div>
+      <div class="pcard"><div class="ico">❌</div><p>CV rejeté sans être lu</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="pill pill-blue">Solution</div>
+    <h2 class="stitle">En 3 étapes simples</h2>
+    <div class="step"><div class="step-n">1</div><div><h3>Choisis ton produit</h3><p>CV simple, pro, avec lettre ou pack complet.</p></div></div>
+    <div class="step"><div class="step-n">2</div><div><h3>Paie via Mobile Money</h3><p>Wave ou Orange Money. Tu envoies le code transaction.</p></div></div>
+    <div class="step"><div class="step-n">3</div><div><h3>PDF débloqué sous 1h</h3><p>Validation manuelle → PDF professionnel généré.</p></div></div>
+  </section>
+
+  <section class="prix-sec">
+    <div class="pill" style="background:#fff2;color:#93C5FD">Tarifs</div>
+    <h2 class="stitle">Nos produits</h2>
+    <p class="ssub">Paiement Wave ou Orange Money</p>
+    <div id="landing-prods"><div style="text-align:center;padding:20px;color:#94A3B8"><span class="spin"></span></div></div>
+    <button class="btn btn-accent" style="margin-top:16px" onclick="go('p-form')">Créer mon CV →</button>
+  </section>
+</div>
+
+<!-- ══════════ FORMULAIRE ══════════ -->
+<div id="p-form" class="page">
+  <div class="pg">
+    <div class="pill pill-blue" style="margin-top:6px">Étape 1/3 — Formulaire</div>
+    <h2 class="stitle">Crée ton CV</h2>
+    <p class="ssub">Choisis ton produit et remplis tes informations.</p>
+
+    <div class="fblock">
+      <div class="ftitle">🛒 Choisis ton produit *</div>
+      <div class="prod-grid" id="form-prods"><div style="text-align:center;padding:20px;color:var(--gray)"><span class="spin"></span></div></div>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">🎨 Template CV</div>
+      <div class="tpl-grid">
+        <div class="tpl sel" id="tpl1" onclick="selTpl(1)"><div class="tpl-ico">📄</div><h4>Classique</h4><p>Sidebar bleu marine</p></div>
+        <div class="tpl" id="tpl2" onclick="selTpl(2)"><div class="tpl-ico">🎯</div><h4>Moderne</h4><p>Header gradient bleu</p></div>
+      </div>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">👤 Informations personnelles</div>
+      <div class="fg"><label>Nom complet *</label><input id="f-nom" placeholder="Amadou Diallo" autocomplete="name"></div>
+      <div class="fg"><label>Téléphone *</label><input id="f-tel" type="tel" placeholder="+221 77 000 00 00" autocomplete="tel"></div>
+      <div class="fg"><label>Email <span class="opt">(optionnel)</span></label><input id="f-email" type="email" placeholder="amadou@email.com" autocomplete="email"></div>
+      <div class="fg"><label>Adresse <span class="opt">(optionnel)</span></label><input id="f-addr" placeholder="Dakar, Sénégal"></div>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">🎯 Profil professionnel</div>
+      <div class="fg"><label>Poste recherché *</label><input id="f-poste" placeholder="Comptable, Développeur, Secrétaire..."></div>
+      <div class="fg"><label>Résumé *</label><textarea id="f-resume" placeholder="Décris-toi en 2-3 phrases : tes forces, ton parcours, tes ambitions..."></textarea></div>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">🎓 Formations</div>
+      <div id="c-form"></div>
+      <button class="add-btn" onclick="addForm()">+ Ajouter une formation</button>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">💼 Expériences professionnelles</div>
+      <div id="c-exp"></div>
+      <button class="add-btn" onclick="addExp()">+ Ajouter une expérience</button>
+    </div>
+
+    <div class="fblock">
+      <div class="ftitle">⚡ Compétences</div>
+      <div class="fg"><label>Liste <span class="opt">(séparées par virgules)</span></label>
+        <textarea id="f-skills" placeholder="Excel, Comptabilité, Communication, Anglais, Leadership..."></textarea>
+      </div>
+    </div>
+
+    <button class="btn btn-accent" onclick="apercu()">Voir l'aperçu de mon CV →</button>
+  </div>
+</div>
+
+<!-- ══════════ APERÇU ══════════ -->
+<div id="p-apercu" class="page">
+  <div class="pg">
+    <div class="pill pill-blue" style="margin-top:6px">Étape 2/3 — Aperçu</div>
+    <h2 class="stitle">Vérifie ton CV</h2>
+    <div class="order-box">
+      <div class="lbl">Produit sélectionné</div>
+      <div class="pname" id="sum-pname">—</div>
+      <div class="order-row">
+        <span style="color:#94A3B8;font-size:.79rem">Montant à payer</span>
+        <span class="order-amt" id="sum-amt">0 FCFA</span>
+      </div>
+    </div>
+    <button class="btn btn-accent" onclick="allerPaiement()">💳 Payer &amp; Débloquer →</button>
+    <button class="btn btn-ghost" onclick="go('p-form')">← Modifier</button>
+    <div class="cv-wrap"><div class="cv-scale"><div class="cv-inner" id="cv-preview"></div></div></div>
+    <button class="btn btn-accent" onclick="allerPaiement()">💳 Payer →</button>
+  </div>
+</div>
+
+<!-- ══════════ PAIEMENT ══════════ -->
+<div id="p-paiement" class="page">
+  <div class="pg">
+    <div class="pill pill-blue" style="margin-top:6px">Étape 3/3 — Paiement</div>
+    <h2 class="stitle">Finalise ton paiement</h2>
+    <div class="order-box">
+      <div class="lbl">Tu paies pour</div>
+      <div class="pname" id="pay-pname">—</div>
+      <div class="order-row">
+        <span style="color:#94A3B8;font-size:.79rem">Montant exact à envoyer</span>
+        <span class="order-amt" id="pay-amt">0 FCFA</span>
+      </div>
+    </div>
+    <div class="err-box" id="pay-err"></div>
+    <div class="pay-box">
+      <p style="font-weight:700;font-size:.9rem;margin-bottom:5px">Envoie exactement <span id="pay-inline" style="color:var(--blue)">—</span> à :</p>
+      <div class="pay-num" onclick="copyNum()" title="Appuie pour copier">+221 77 000 00 00</div>
+      <div class="copy-tip" id="copy-tip">👆 Appuie pour copier</div>
+      <ul class="pay-steps">
+        <li><span class="sn">1</span>Ouvre Wave ou Orange Money</li>
+        <li><span class="sn">2</span>Envoie le montant exact au numéro ci-dessus</li>
+        <li><span class="sn">3</span>Copie le code de transaction reçu par SMS</li>
+        <li><span class="sn">4</span>Colle-le dans le champ ci-dessous et soumets</li>
+      </ul>
+    </div>
+    <div class="fg">
+      <label>Numéro de transaction *</label>
+      <input id="txn-input" placeholder="Ex: WV-123456789 ou OM-987654321" style="font-weight:600;font-size:.95rem" autocomplete="off">
+    </div>
+    <p style="font-size:.71rem;color:var(--gray);margin-bottom:13px">⚠️ Ne soumets pas un faux numéro. Ton paiement est vérifié manuellement avant tout déblocage.</p>
+    <button class="btn btn-accent" id="submit-btn" onclick="soumettre()">✅ Soumettre mon paiement</button>
+    <button class="btn btn-ghost" onclick="go('p-apercu')">← Retour</button>
+  </div>
+</div>
+
+<!-- ══════════ ATTENTE ══════════ -->
+<div id="p-attente" class="page">
+  <div class="pg">
+    <div id="status-area" style="margin-top:6px"></div>
+    <div class="info-row"><div class="lbl">Transaction soumise :</div><strong id="txn-shown"></strong></div>
+    <div class="info-row" style="margin-top:8px"><div class="lbl">Produit :</div><strong id="wait-prod"></strong></div>
+    <div class="poll-row" id="poll-row"><div class="spin"></div>Vérification toutes les 10 secondes...</div>
+    <div id="dl-area" style="display:none;margin-top:18px">
+      <button class="btn btn-accent" id="dl-btn" onclick="telecharger()">📄 Télécharger mon CV PDF</button>
+      <p style="text-align:center;font-size:.71rem;color:var(--gray);margin-top:6px">PDF sécurisé généré par notre serveur.</p>
+    </div>
+    <p style="text-align:center;font-size:.71rem;color:var(--gray);margin-top:22px">Besoin d'aide ? <strong>+221 77 000 00 00</strong></p>
+  </div>
+</div>
+
+<script>
+// ── SERVICE WORKER INLINE ──────────────────────────────────────
+if('serviceWorker' in navigator){
+  const swCode=`const C='cve24-v1';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['/']).catch(()=>{})).then(()=>self.skipWaiting()));});self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});self.addEventListener('fetch',e=>{if(e.request.url.includes('/api/'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).catch(()=>new Response(''))));});`;
+  const swBlob=new Blob([swCode],{type:'application/javascript'});
+  navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(()=>{});
+}
+
+// ── STATE ──────────────────────────────────────────────────────
+let selProd=null,cvTpl=1,cvData={},cvId=null,polling=null,deferPWA=null,productsDB=[];
+
+// ── NAVIGATION ─────────────────────────────────────────────────
+function go(id){
+  document.querySelectorAll('.page,#p-land').forEach(p=>{
+    const t=p.id===id;p.classList.toggle('active',t);
+    if(p.id==='p-land')p.style.display=t?'block':'none';
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.getElementById('p-land').style.display='block';
+
+// ── PRODUITS ───────────────────────────────────────────────────
+async function chargerProduits(){
+  try{
+    const r=await fetch(`${API}/products`);
+    if(!r.ok) throw new Error();
+    const d=await r.json();
+    productsDB=d.products||[];
+  }catch(_){
+    productsDB=[
+      {id:1,code:'CV_SIMPLE',    name:'CV Simple',       price:500, description:'CV professionnel PDF, 2 templates',          includes_lettre:false},
+      {id:2,code:'CV_PRO',       name:'CV Pro',           price:1000,description:'CV premium avec design avancé',              includes_lettre:false},
+      {id:3,code:'CV_PRO_LETTRE',name:'CV Pro + Lettre',  price:2000,description:'CV Pro + Lettre de motivation incluse',      includes_lettre:true},
+      {id:4,code:'CV_PREMIUM',   name:'Pack Premium',     price:5000,description:'CV + Lettre + Suivi 30 jours',              includes_lettre:true},
+    ];
+  }
+  renderLandingProds();renderFormProds();
+}
+
+function renderLandingProds(){
+  document.getElementById('landing-prods').innerHTML=productsDB.map(p=>`
+    <div style="background:#1E2D4F;border-radius:13px;padding:14px;margin-bottom:9px;border:1px solid ${p.code==='CV_PRO_LETTRE'?'#F5A623':'#2D3F6B'}">
+      ${p.code==='CV_PRO_LETTRE'?'<div style="display:inline-block;background:#F5A623;color:#0D1B3E;font-size:.6rem;font-weight:800;padding:2px 8px;border-radius:20px;margin-bottom:7px">⭐ Le plus populaire</div>':''}
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-weight:700;color:#fff;font-size:.9rem">${esc(p.name)}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:900;color:#F5A623">${p.price.toLocaleString('fr-FR')} <span style="font-size:.63rem;color:#94A3B8;font-family:'DM Sans',sans-serif">FCFA</span></div>
+      </div>
+      <div style="font-size:.72rem;color:#94A3B8;margin-top:3px">${esc(p.description||'')}</div>
+      ${p.includes_lettre?'<div style="font-size:.69rem;color:#10B981;margin-top:5px">✓ Lettre de motivation incluse</div>':''}
+    </div>`).join('');
+}
+
+function renderFormProds(){
+  document.getElementById('form-prods').innerHTML=productsDB.map(p=>`
+    <div class="prod-card${p.code==='CV_PRO_LETTRE'?' feat':''}" id="prod-${p.id}" onclick="selectProd(${p.id})">
+      ${p.code==='CV_PRO_LETTRE'?'<div class="prod-badge">⭐ Populaire</div>':''}
+      <div class="prod-top">
+        <span class="prod-name">${esc(p.name)}</span>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span class="prod-price">${p.price.toLocaleString('fr-FR')} <small>FCFA</small></span>
+          <div class="radio-dot" id="rd-${p.id}"></div>
+        </div>
+      </div>
+      <div class="prod-desc">${esc(p.description||'')}</div>
+      <div class="prod-tags">
+        ${p.includes_lettre?'<span class="prod-tag" style="background:#D1FAE5;color:#065F46">✓ Lettre incluse</span>':''}
+        <span class="prod-tag">✓ PDF pro</span><span class="prod-tag">✓ &lt;1h</span>
+      </div>
+    </div>`).join('');
+  if(productsDB.length) selectProd(productsDB[0].id);
+}
+
+function selectProd(id){
+  selProd=productsDB.find(p=>p.id===id)||null;
+  document.querySelectorAll('.prod-card').forEach(c=>c.classList.remove('sel'));
+  if(selProd) document.getElementById('prod-'+id)?.classList.add('sel');
+}
+
+// ── TEMPLATE ──────────────────────────────────────────────────
+function selTpl(n){
+  cvTpl=n;
+  document.getElementById('tpl1').classList.toggle('sel',n===1);
+  document.getElementById('tpl2').classList.toggle('sel',n===2);
+}
+
+// ── FORMULAIRE DYNAMIQUE ──────────────────────────────────────
+function addForm(d={}){
+  const c=document.getElementById('c-form'),el=document.createElement('div');el.className='dyn-block';
+  el.innerHTML=`<button class="rm-btn" onclick="this.closest('.dyn-block').remove()">✕ Retirer</button>
+    <div class="fg"><label>Diplôme</label><input class="fd" placeholder="Licence en Gestion" value="${esc(d.diplome||'')}"></div>
+    <div class="fg"><label>École / Université</label><input class="fe" placeholder="Université de Dakar" value="${esc(d.ecole||'')}"></div>
+    <div class="fg"><label>Année</label><input class="fa" placeholder="2022" value="${esc(d.annee||'')}"></div>`;
+  c.appendChild(el);
+}
+function addExp(d={}){
+  const c=document.getElementById('c-exp'),el=document.createElement('div');el.className='dyn-block';
+  el.innerHTML=`<button class="rm-btn" onclick="this.closest('.dyn-block').remove()">✕ Retirer</button>
+    <div class="fg"><label>Poste occupé</label><input class="ep" placeholder="Assistant comptable" value="${esc(d.poste||'')}"></div>
+    <div class="fg"><label>Entreprise</label><input class="ee" placeholder="Orange Sénégal" value="${esc(d.entreprise||'')}"></div>
+    <div class="fg"><label>Durée</label><input class="edu" placeholder="Jan 2021 – Déc 2022" value="${esc(d.duree||'')}"></div>
+    <div class="fg"><label>Description <span class="opt">(missions, réalisations)</span></label><textarea class="ede" placeholder="Décris tes missions...">${esc(d.description||'')}</textarea></div>`;
+  c.appendChild(el);
+}
+addForm(); addExp();
+
+// ── COLLECTER ─────────────────────────────────────────────────
+function collect(){
+  const formations=[],experiences=[];
+  document.querySelectorAll('#c-form .dyn-block').forEach(b=>{
+    const d=vv(b,'.fd'),e=vv(b,'.fe'),a=vv(b,'.fa');
+    if(d||e)formations.push({diplome:d,ecole:e,annee:a});
+  });
+  document.querySelectorAll('#c-exp .dyn-block').forEach(b=>{
+    const p=vv(b,'.ep'),en=vv(b,'.ee'),du=vv(b,'.edu'),de=vv(b,'.ede');
+    if(p||en)experiences.push({poste:p,entreprise:en,duree:du,description:de});
+  });
+  return{nom:g('f-nom'),telephone:g('f-tel'),email:g('f-email'),adresse:g('f-addr'),
+    poste:g('f-poste'),resume:g('f-resume'),
+    competences:g('f-skills').split(',').map(s=>s.trim()).filter(Boolean),
+    formations,experiences,template:cvTpl};
+}
+
+// ── APERÇU ────────────────────────────────────────────────────
+function apercu(){
+  if(!selProd){alert('⚠️ Choisis un produit avant de continuer.');return;}
+  if(!g('f-nom')||g('f-nom').length<2){alert('⚠️ Entre ton nom complet.');return;}
+  if(!g('f-tel')||g('f-tel').length<8){alert('⚠️ Entre ton numéro de téléphone.');return;}
+  cvData=collect();
+  document.getElementById('cv-preview').innerHTML=cvTpl===1?buildT1():buildT2();
+  document.getElementById('sum-pname').textContent=selProd.name;
+  document.getElementById('sum-amt').textContent=selProd.price.toLocaleString('fr-FR')+' FCFA';
+  go('p-apercu');
+}
+
+function allerPaiement(){
+  if(!selProd)return;
+  document.getElementById('pay-pname').textContent=selProd.name;
+  const f=selProd.price.toLocaleString('fr-FR')+' FCFA';
+  document.getElementById('pay-amt').textContent=f;
+  document.getElementById('pay-inline').textContent=f;
+  go('p-paiement');
+}
+
+// ── HTML CV LOCAL (aperçu seulement, PDF fait côté serveur) ───
+function buildT1(){
+  const d=cvData;
+  const sk=(d.competences||[]).map(s=>`<span style="display:inline-block;background:#1E2D4F;border-radius:4px;padding:3px 8px;font-size:9px;margin:2px;color:#E2E8F0">${esc(s)}</span>`).join('');
+  const fm=(d.formations||[]).map(f=>`<div style="margin-bottom:10px"><div style="font-weight:700;font-size:12px;color:#0D1B3E">${esc(f.diplome)}</div><div style="font-size:11px;color:#64748B">${esc(f.ecole)}${f.annee?' · '+esc(f.annee):''}</div></div>`).join('');
+  const ex=(d.experiences||[]).map(e=>`<div style="margin-bottom:10px"><div style="font-weight:700;font-size:12px;color:#0D1B3E">${esc(e.poste)}</div><div style="font-size:11px;color:#1A4DB8">${esc(e.entreprise)}${e.duree?' · '+esc(e.duree):''}</div><div style="font-size:11px;color:#475569;line-height:1.5">${esc(e.description||'')}</div></div>`).join('');
+  return`<div style="display:flex;width:210mm;min-height:297mm;font-family:Arial,sans-serif;background:white">
+  <div style="width:72mm;background:#0D1B3E;padding:28px 18px;color:white;flex-shrink:0">
+    <div style="font-size:22px;font-weight:900;margin-bottom:4px;line-height:1.2">${esc(d.nom)}</div>
+    <div style="color:#94A3B8;font-size:11px;margin-bottom:22px">${esc(d.poste)}</div>
+    <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#F5A623;margin-bottom:8px;font-weight:700;border-bottom:1px solid #1E2D4F;padding-bottom:4px">Contact</div>
+    ${d.telephone?`<div style="font-size:10px;color:#CBD5E1;margin-bottom:5px">📞 ${esc(d.telephone)}</div>`:''}
+    ${d.email?`<div style="font-size:10px;color:#CBD5E1;margin-bottom:5px">✉ ${esc(d.email)}</div>`:''}
+    ${d.adresse?`<div style="font-size:10px;color:#CBD5E1;margin-bottom:5px">📍 ${esc(d.adresse)}</div>`:''}
+    ${sk?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#F5A623;margin:20px 0 8px;font-weight:700;border-bottom:1px solid #1E2D4F;padding-bottom:4px">Compétences</div><div>${sk}</div>`:''}
+  </div>
+  <div style="flex:1;padding:28px 20px">
+    <div style="font-size:20px;font-weight:900;color:#0D1B3E;margin-bottom:6px">${esc(d.nom)}</div>
+    ${d.resume?`<div style="font-size:11px;color:#475569;line-height:1.6;margin-bottom:14px">${esc(d.resume)}</div>`:''}
+    ${fm?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin:16px 0 8px;border-bottom:2px solid #EEF2FF;padding-bottom:4px">Formation</div>${fm}`:''}
+    ${ex?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin:16px 0 8px;border-bottom:2px solid #EEF2FF;padding-bottom:4px">Expérience</div>${ex}`:''}
+  </div>
+</div>`;
+}
+
+function buildT2(){
+  const d=cvData;
+  const ini=d.nom.split(' ').map(n=>n[0]||'').join('').substring(0,2).toUpperCase();
+  const sk=(d.competences||[]).map((s,i)=>`<div style="margin-bottom:8px"><div style="font-size:11px;color:#0D1B3E;margin-bottom:3px">${esc(s)}</div><div style="height:5px;background:#E2E8F0;border-radius:3px;overflow:hidden"><div style="height:100%;background:#1A4DB8;border-radius:3px;width:${65+(i*7)%28}%"></div></div></div>`).join('');
+  const fm=(d.formations||[]).map(f=>`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #F1F5F9"><div style="font-weight:700;font-size:12px;color:#0D1B3E">${esc(f.diplome)}</div><div style="font-size:11px;color:#1A4DB8">🎓 ${esc(f.ecole)}${f.annee?' — '+esc(f.annee):''}</div></div>`).join('');
+  const ex=(d.experiences||[]).map(e=>`<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #F1F5F9"><div style="font-weight:700;font-size:12px;color:#0D1B3E">${esc(e.poste)}</div><div style="font-size:11px;color:#1A4DB8">🏢 ${esc(e.entreprise)}${e.duree?' — '+esc(e.duree):''}</div><div style="font-size:11px;color:#475569;line-height:1.5">${esc(e.description||'')}</div></div>`).join('');
+  return`<div style="width:210mm;min-height:297mm;font-family:Arial,sans-serif;background:white">
+  <div style="background:linear-gradient(135deg,#0D1B3E,#1A4DB8);padding:28px 24px;color:white;display:flex;align-items:center;gap:18px">
+    <div style="width:60px;height:60px;background:#F5A623;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#0D1B3E;flex-shrink:0">${ini}</div>
+    <div><div style="font-size:24px;font-weight:900">${esc(d.nom)}</div><div style="color:#93C5FD;font-size:13px">${esc(d.poste)}</div></div>
+  </div>
+  <div style="display:flex">
+    <div style="flex:1.6;padding:20px">
+      ${d.resume?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin-bottom:8px">Profil</div><div style="font-size:11px;color:#475569;line-height:1.6;margin-bottom:14px">${esc(d.resume)}</div>`:''}
+      ${ex?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin:8px 0">Expériences</div>${ex}`:''}
+      ${fm?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin:8px 0">Formations</div>${fm}`:''}
+    </div>
+    <div style="flex:1;background:#F8FAFF;padding:20px 16px;border-left:1px solid #E2E8F0">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin-bottom:8px">Contact</div>
+      ${d.telephone?`<div style="font-size:11px;color:#64748B;margin-bottom:7px">📞 ${esc(d.telephone)}</div>`:''}
+      ${d.email?`<div style="font-size:11px;color:#64748B;margin-bottom:7px">✉ ${esc(d.email)}</div>`:''}
+      ${d.adresse?`<div style="font-size:11px;color:#64748B;margin-bottom:7px">📍 ${esc(d.adresse)}</div>`:''}
+      ${sk?`<div style="font-size:9px;text-transform:uppercase;letter-spacing:2px;color:#1A4DB8;font-weight:700;margin:14px 0 8px">Compétences</div>${sk}`:''}
+    </div>
+  </div>
+</div>`;
+}
+
+// ── COPIER NUMÉRO ─────────────────────────────────────────────
+function copyNum(){
+  navigator.clipboard?.writeText('+221770000000').then(()=>{
+    document.getElementById('copy-tip').textContent='✅ Numéro copié !';
+    setTimeout(()=>document.getElementById('copy-tip').textContent='👆 Appuie pour copier',2200);
+  }).catch(()=>{});
+}
+
+// ── SOUMISSION ────────────────────────────────────────────────
+async function soumettre(){
+  const txn=g('txn-input');
+  if(!txn||txn.length<4){showErr('pay-err','⚠️ Entre le numéro de transaction reçu par SMS.');return;}
+  if(!selProd){showErr('pay-err','⚠️ Produit non sélectionné.');return;}
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;btn.textContent='⏳ Envoi en cours...';hideErr('pay-err');
+  try{
+    const res=await fetch(`${API}/submit-cv`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        nom:cvData.nom,email:cvData.email,telephone:cvData.telephone,
+        poste:cvData.poste,adresse:cvData.adresse,cv_data:cvData,
+        product_id:selProd.id,transaction_number:txn,template_id:cvData.template
+      })
+    });
+    const data=await res.json();
+    if(!res.ok){showErr('pay-err',data.error||'Erreur. Réessaie.');btn.disabled=false;btn.textContent='✅ Soumettre mon paiement';return;}
+    cvId=data.cv_id;
+    sessionStorage.setItem('cv_id',cvId);sessionStorage.setItem('cv_txn',txn);sessionStorage.setItem('cv_prod',JSON.stringify(selProd));
+    document.getElementById('txn-shown').textContent=txn;
+    document.getElementById('wait-prod').textContent=selProd.name+' — '+selProd.price.toLocaleString('fr-FR')+' FCFA';
+    renderStatus(false);go('p-attente');startPolling();
+  }catch(_){
+    showErr('pay-err','❌ Serveur inaccessible. Vérifie ta connexion.');
+    btn.disabled=false;btn.textContent='✅ Soumettre mon paiement';
+  }
+}
+
+// ── POLLING ───────────────────────────────────────────────────
+function startPolling(){
+  if(polling)clearInterval(polling);
+  verif();polling=setInterval(verif,10000);
+}
+async function verif(){
+  if(!cvId)return;
+  try{
+    const r=await fetch(`${API}/cv-status/${cvId}`);
+    if(!r.ok)return;
+    const d=await r.json();
+    if(d.paiement_valide===true){
+      clearInterval(polling);polling=null;
+      document.getElementById('poll-row').style.display='none';
+      renderStatus(true);document.getElementById('dl-area').style.display='block';
+    }
+  }catch(_){}
+}
+function renderStatus(ok){
+  document.getElementById('status-area').innerHTML=ok
+    ?`<div class="status-card s-ok"><h3>✅ Paiement validé !</h3><p>Ton PDF est prêt à télécharger ci-dessous.</p></div>`
+    :`<div class="status-card s-wait"><h3>⏳ En attente de validation</h3><p>Notre équipe vérifie ton paiement. Délai habituel : moins d'1 heure.</p></div>`;
+}
+
+// ── TÉLÉCHARGEMENT ────────────────────────────────────────────
+async function telecharger(){
+  if(!cvId){alert('ID manquant.');return;}
+  const btn=document.getElementById('dl-btn');
+  btn.disabled=true;btn.textContent='⏳ Génération PDF...';
+  try{
+    const res=await fetch(`${API}/download/${cvId}`);
+    if(res.status===403){alert('❌ Paiement pas encore validé.');btn.disabled=false;btn.textContent='📄 Télécharger mon CV PDF';return;}
+    if(!res.ok){const e=await res.json().catch(()=>({}));alert(e.error||'Erreur.');btn.disabled=false;btn.textContent='📄 Télécharger mon CV PDF';return;}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`CV_${(cvData.nom||'').replace(/\s+/g,'_')}.pdf`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+    btn.textContent='✅ Téléchargé !';btn.style.background='var(--ok)';
+  }catch(_){alert('❌ Erreur réseau.');btn.disabled=false;btn.textContent='📄 Télécharger mon CV PDF';}
+}
+
+// ── SESSION RESTORE ───────────────────────────────────────────
+(function restore(){
+  const id=sessionStorage.getItem('cv_id'),txn=sessionStorage.getItem('cv_txn'),prod=sessionStorage.getItem('cv_prod');
+  if(id){
+    cvId=id;if(prod)try{selProd=JSON.parse(prod);}catch(_){}
+    document.getElementById('txn-shown').textContent=txn||'—';
+    document.getElementById('wait-prod').textContent=selProd?(selProd.name+' — '+selProd.price.toLocaleString('fr-FR')+' FCFA'):'—';
+    renderStatus(false);go('p-attente');startPolling();
+  }
+})();
+
+// ── PWA ───────────────────────────────────────────────────────
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferPWA=e;
+  if(!localStorage.getItem('pwa_dismissed'))setTimeout(()=>document.getElementById('pwa-bar').classList.add('show'),3500);
+});
+document.getElementById('pwa-go').onclick=async()=>{
+  if(!deferPWA)return;deferPWA.prompt();
+  const{outcome}=await deferPWA.userChoice;
+  if(outcome==='accepted')document.getElementById('pwa-bar').classList.remove('show');
+  deferPWA=null;
+};
+function dismissPWA(){localStorage.setItem('pwa_dismissed','1');document.getElementById('pwa-bar').classList.remove('show');}
+window.addEventListener('appinstalled',()=>document.getElementById('pwa-bar').classList.remove('show'));
+
+// ── UTILS ─────────────────────────────────────────────────────
+function g(id){return(document.getElementById(id)?.value||'').trim();}
+function vv(el,sel){return(el.querySelector(sel)?.value||'').trim();}
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showErr(id,msg){const el=document.getElementById(id);if(el){el.textContent=msg;el.classList.add('show');}}
+function hideErr(id){document.getElementById(id)?.classList.remove('show');}
+
+chargerProduits();
+</script>
+</body>
+</html>
