@@ -1,0 +1,32 @@
+{
+  "name": "files",
+  "version": "1.0.0",
+  "description": "",
+  "main": "cv-express-backend.js",
+  "scripts": {
+  "start": "node cv-express-backend.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moussdembele20000-cyber/backend-cv-express.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/moussdembele20000-cyber/backend-cv-express/issues"
+  },
+  "homepage": "https://github.com/moussdembele20000-cyber/backend-cv-express#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.97.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "puppeteer": "^24.37.5",
+    "web-push": "^3.6.7"
+  }
+}
